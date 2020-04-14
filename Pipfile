@@ -7,11 +7,9 @@ verify_ssl = true
 
 [packages]
 flask = "*"
-flask-restful = "*"
 pytest = "*"
 requests = "*"
 pytest-cov = "*"
-parking-lot = {path = "."}
 
 [requires]
 python_version = "3.7"
