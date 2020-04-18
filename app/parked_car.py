@@ -25,7 +25,7 @@ class ParkedCar:
             try:
                 self._tariff = TariffFactory(value).get_tariff()
             except TariffNotDefinedError:
-                raise TariffNotDefinedError()
+                raise TariffNotDefinedError(value)
         else:
             self._tariff = value
 

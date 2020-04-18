@@ -3,22 +3,25 @@ import inspect
 
 from app.errors import TariffNotDefinedError
 from app.tariff_types.tariff_type import TariffType
+from app.parking_lot_logger import logger
 
 
 class TariffFactory:
 
-    def __init__(self, name):
+    def __init__(self, name, price_calc=None):
         self.name = name.lower()
         self._tariff_package = 'app.tariff_types'
         self._tariff_dir = os.path.join('app', 'tariff_types')
+        self.price_calc = price_calc
 
     def get_tariff(self):
+        logger.debug(f"Getting tariff {self.name} from factory")
         tariff_modules = self._load_modules()
         try:
             klass = self._get_class_by_name_attr(tariff_modules)
         except TariffNotDefinedError:
-            raise
-        return klass()
+            raise TariffNotDefinedError(self.name)
+        return klass(self.price_calc)
 
     def _load_modules(self):
         result = {}
@@ -36,7 +39,7 @@ class TariffFactory:
                 if inspect.isclass(obj) and issubclass(obj, TariffType):
                     if obj.name == self.name:
                         return obj
-        raise TariffNotDefinedError()
+        raise TariffNotDefinedError(self.name)
 
     @staticmethod
     def _is_dir_or_init(file_or_folder_path):

@@ -1,9 +1,10 @@
 import os
+import logging
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-class Config():
+class Config:
     pass
 
     @staticmethod
@@ -13,15 +14,17 @@ class Config():
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    logging.basicConfig(level=logging.DEBUG)
 
 
 class TestConfig(Config):
     TESTING = True
     DEBUG = False
+    logging.basicConfig(level=logging.INFO)
 
 
 class ProductionConfig(Config):
-    pass
+    logging.basicConfig(level=logging.DEBUG)
 
 
 configDict = {

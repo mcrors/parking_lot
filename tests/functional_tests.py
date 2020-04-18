@@ -24,7 +24,7 @@ class TestAddCarShould:
         }
         client.get('add', query_string=data)
         assert len(empty_parking_lot) == 1
-        car = empty_parking_lot.parked_cars[0]
+        car = empty_parking_lot.parking_spaces[0].car
         assert car.reg_num == '12345'
         assert empty_parking_lot.free_locations == [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
@@ -60,7 +60,7 @@ class TestRemoveCarShould:
     def test_lowers_number_of_cars_in_parking_lot(client, full_car_park):
         assert len(full_car_park) == 12
         data = {
-            'location': 1
+            'location': '1'
         }
         client.get('remove', query_string=data)
         assert len(full_car_park) == 11
@@ -89,6 +89,7 @@ class TestRemoveCarShould:
         resp = client.get('remove', query_string={'location': 'hi'})
         assert resp.status_code == 400
         assert resp.get_json()['status'] == 'error'
+        assert "hi is not an integer" in resp.get_json()['message']
 
     @staticmethod
     def test_returns_error_when_wrong_location_is_entered(client, empty_parking_lot):
@@ -96,14 +97,14 @@ class TestRemoveCarShould:
         resp = client.get('remove', query_string={'location': f'{non_existing_location}'})
         assert resp.status_code == 400
         assert resp.get_json()['status'] == 'error'
-        assert 'location entered does not exist' in resp.get_json()['message']
+        assert f'The location {non_existing_location} does not exist' in resp.get_json()['message']
 
     @staticmethod
     def test_returns_error_when_free_location_is_entered(client, empty_parking_lot):
         resp = client.get('remove', query_string={'location': '1'})
         assert resp.status_code == 400
         assert resp.get_json()['status'] == 'error'
-        assert resp.get_json()['message'] == 'Location entered was not occupied'
+        assert resp.get_json()['message'] == 'Location 1 was not occupied'
 
 
 class TestListCarsShould:

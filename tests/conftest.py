@@ -1,8 +1,15 @@
+import logging
 from datetime import datetime
 import pytest
 from app.parked_car import ParkedCar
 from app.parking_lot import ParkingLot
 from parking_lot import create_app
+
+
+@pytest.fixture(autouse=True)
+def set_logging_level():
+    logging.basicConfig(filename='test.log', level=logging.DEBUG)
+    yield
 
 
 @pytest.fixture()
