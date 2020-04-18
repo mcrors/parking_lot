@@ -52,6 +52,7 @@ class ParkingLot:
         if self._car_already_parked(car):
             raise CarAlreadyParkedError(car.reg_num)
         location_num = self.get_next_location()
+        car.location = location_num
         self.parking_spaces[location_num-1].assign(car)
         logger.info(f"Car {car.reg_num} added to location {location_num}")
 

@@ -15,73 +15,74 @@ class ParkingLotError(Exception):
         self.message = 'An unidentified error occured on the parking lot server'
         self.status_code = HTTPStatus.INTERNAL_SERVER_ERROR.value
         self.value = value
+        self.status = 'Fatel'
 
     @property
     def response(self):
         return {
-            'status': 'error',
+            'status': self.status,
             'message': self.message
         }
 
 
-class NonExistantLocationError(ParkingLotError):
+class ParkingLotBadRequestError(ParkingLotError):
+
+    def __init__(self, value=None):
+        super().__init__(value)
+        self.status = 'error'
+        self.status_code = HTTPStatus.BAD_REQUEST.value
+
+
+class NonExistantLocationError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = f'The location {value} does not exist'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class IncorrectLocationError(ParkingLotError):
+class IncorrectLocationError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = f'Location {value} was not occupied'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class ParkingLotFullError(ParkingLotError):
+class ParkingLotFullError(ParkingLotBadRequestError):
     def __init__(self, value=None):
         super().__init__(value)
         self.message = 'No free spaces'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class CarAlreadyParkedError(ParkingLotError):
+class CarAlreadyParkedError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = f'A car with the registration number {value} is already parked here'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class TariffNotDefinedError(ParkingLotError):
+class TariffNotDefinedError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = f'The tariff type {value} is not available or does not exist'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class AddParameterError(ParkingLotError):
+class AddParameterError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = 'You must supply both a car registration number and tariff'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class MissingLocationError(ParkingLotError):
+class MissingLocationError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = 'You must supply a location number'
-        self.status_code = HTTPStatus.BAD_REQUEST.value
 
 
-class InvalidLocationError(ParkingLotError):
+class InvalidLocationError(ParkingLotBadRequestError):
 
     def __init__(self, value=None):
         super().__init__(value)
         self.message = f'Location value entered {value} is not an integer. You must supply an integer value'
-        self.status_code = HTTPStatus.BAD_REQUEST.value

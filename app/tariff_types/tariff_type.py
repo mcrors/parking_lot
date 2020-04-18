@@ -7,10 +7,7 @@ class TariffType(ABC):
 
     def __init__(self, price_calc=None):
         super().__init__()
-        if not price_calc:
-            self.price_calc = StandardPriceCalc()
-        else:
-            self.price_calc = price_calc
+        self.price_calc = price_calc or StandardPriceCalc()
 
     @abstractmethod
     def calculate_price(self, start, end):
