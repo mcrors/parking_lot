@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from app.parked_car import ParkedCar
 from app.parking_lot import ParkingLot
-from app.errors import ParkingLotFullError, TariffNotDefinedError, IncorrectLocationError
+from app.errors import ParkingLotFullError, TariffNotDefinedError, IncorrectLocationError, CarAlreadyParkedError
 from app.tariff_factory import TariffFactory
 from app.tariff_types.hourly_tariff import HourlyTariff
 from app.tariff_types.daily_tariff import DailyTariff
@@ -103,6 +103,21 @@ class TestParkingLotShould:
         full_car_park.remove_car(1)
         assert len(full_car_park) == 11
 
+    @staticmethod
+    def test_cant_add_the_same_car_twice(empty_parking_lot):
+        car1 = ParkedCar(reg_num="12345", tariff='hourly', location=1)
+        empty_parking_lot.add_car(car1)
+        with pytest.raises(CarAlreadyParkedError):
+            empty_parking_lot.add_car(car1)
+
+    @staticmethod
+    def test_knows_if_a_car_is_already_parked(empty_parking_lot):
+        car = ParkedCar(reg_num="12345", tariff='hourly', location=1)
+        result = empty_parking_lot._car_already_parked(car)
+        assert result is False
+        empty_parking_lot.add_car(car)
+        result = empty_parking_lot._car_already_parked(car)
+        assert result is True
 
 class TestParkedCarShould:
 

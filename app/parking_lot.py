@@ -88,8 +88,7 @@ class ParkingLot:
         return [location.location_num for location in self.parking_spaces if location.available is True]
 
     def _car_already_parked(self, car):
-        return [
-            location.car
-            for location in self.parking_spaces
-            if location.car is not None and location.car.reg_num == car.reg_num
-        ] is True
+        for location in self.parking_spaces:
+            if location.car is not None and location.car.reg_num == car.reg_num:
+                return True
+        return False
