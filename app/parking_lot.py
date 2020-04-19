@@ -1,4 +1,5 @@
 from app.parking_lot_logger import logger
+from app.cars import ParkedCar
 from app.errors import IncorrectLocationError, ParkingLotFullError, CarAlreadyParkedError, \
     NonExistantLocationError
 
@@ -52,9 +53,10 @@ class ParkingLot:
         if self._car_already_parked(car):
             raise CarAlreadyParkedError(car.reg_num)
         location_num = self.get_next_location()
-        car.location = location_num
-        self.parking_spaces[location_num-1].assign(car)
+        parked_car = ParkedCar(car, location_num)
+        self.parking_spaces[location_num-1].assign(parked_car)
         logger.info(f"Car {car.reg_num} added to location {location_num}")
+        return parked_car
 
     def remove_car(self, location_num):
         logger.info(f"Removing car from location {location_num}")

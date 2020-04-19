@@ -1,7 +1,6 @@
 import logging
-from datetime import datetime
 import pytest
-from app.parked_car import ParkedCar
+from app.cars import ParkedCar, Car
 from app.parking_lot import ParkingLot
 from parking_lot import create_app
 
@@ -21,7 +20,7 @@ def empty_parking_lot():
 
 @pytest.fixture()
 def non_empty_parking_lot(empty_parking_lot):
-    c1 = ParkedCar('123456', 'hourly', 1)
+    c1 = Car('123456', 'hourly')
     empty_parking_lot.add_car(c1)
     return empty_parking_lot
 
@@ -29,7 +28,7 @@ def non_empty_parking_lot(empty_parking_lot):
 @pytest.fixture()
 def full_car_park(empty_parking_lot):
     for i in range(empty_parking_lot.NUM_OF_SPACES):
-        car = ParkedCar(f'car_{i}', 'hourly', i+1)
+        car = Car(f'car_{i}', 'hourly')
         empty_parking_lot.add_car(car)
     return empty_parking_lot
 

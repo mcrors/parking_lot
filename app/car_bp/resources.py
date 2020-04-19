@@ -2,7 +2,7 @@ from datetime import datetime
 from http import HTTPStatus
 from flask import request, jsonify
 from . import car_bp
-from app.parked_car import ParkedCar
+from app.cars import ParkedCar, Car
 from app.parking_lot import ParkingLot
 from app.errors import AddParameterError, generic_exception_response, MissingLocationError,InvalidLocationError, \
     ParkingLotError
@@ -20,11 +20,8 @@ def add_car():
         raise AddParameterError
 
     parking_lot = ParkingLot()
-    parked_car = ParkedCar(reg_num=car,
-                           tariff=tariff,
-                           location=None,
-                           start_time=datetime.now())
-    parking_lot.add_car(parked_car)
+    car = Car(reg_num=car, tariff=tariff)
+    parked_car = parking_lot.add_car(car)
     resp = {
         "status": "success",
         "car": parked_car.reg_num,
@@ -41,10 +38,10 @@ def add_car():
 def list_cars():
     logger.info(request)
     parking_lot = ParkingLot()
-    cars = parking_lot.get_all_parked_cars()
+    parked_cars = parking_lot.get_all_parked_cars()
     resp = {
         "status": "success",
-        "cars": cars
+        "cars": parked_cars
     }
     logger.info(resp)
     return jsonify(resp)
