@@ -21,14 +21,7 @@ def add_car():
 
     parking_lot = ParkingLot()
     car = Car(reg_num=car, tariff=tariff)
-    parked_car = parking_lot.add_car(car)
-    resp = {
-        "status": "success",
-        "car": parked_car.reg_num,
-        "tariff": parked_car.tariff.name,
-        "location": parked_car.location,
-        "start": parked_car.start_time
-    }
+    resp = parking_lot.add_car(car)
     logger.info(resp)
     return jsonify(resp)
 
@@ -38,11 +31,7 @@ def add_car():
 def list_cars():
     logger.info(request)
     parking_lot = ParkingLot()
-    parked_cars = parking_lot.get_all_parked_cars()
-    resp = {
-        "status": "success",
-        "cars": parked_cars
-    }
+    resp = parking_lot.get_all_parked_cars()
     logger.info(resp)
     return jsonify(resp)
 
@@ -57,16 +46,6 @@ def remove_cars():
     if not car_location.isdigit():
         raise InvalidLocationError(car_location)
     parking_lot = ParkingLot()
-    parked_car = parking_lot.remove_car(car_location)
-    logger.info(parked_car)
-    resp = {
-        "status": "success",
-        "car": parked_car.reg_num,
-        "tariff": parked_car.tariff.name,
-        "location": parked_car.location,
-        "start": parked_car.start_time,
-        "finish": datetime.now(),
-        "fee": parked_car.tariff.calculate_price(parked_car.start_time, datetime.now())
-    }
+    resp = parking_lot.remove_car(car_location)
     logger.info(resp)
     return jsonify(resp)

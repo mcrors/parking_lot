@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.parking_lot_logger import logger
 from app.cars import ParkedCar
 from app.errors import IncorrectLocationError, ParkingLotFullError, CarAlreadyParkedError, \
@@ -44,7 +45,11 @@ class ParkingLot:
         return self.NUM_OF_SPACES - len(self.free_locations)
 
     def get_all_parked_cars(self):
-        return [location.car.details for location in self.parking_spaces if location.available is False]
+        return {"status": "success",
+                "cars": [location.car.details
+                         for location in self.parking_spaces
+                         if not location.available]
+                }
 
     def add_car(self, car):
         logger.info(f"Adding car {car.reg_num}")
@@ -52,27 +57,38 @@ class ParkingLot:
             raise ParkingLotFullError
         if self._car_already_parked(car):
             raise CarAlreadyParkedError(car.reg_num)
-        location_num = self.get_next_location()
-        parked_car = ParkedCar(car, location_num)
-        self.parking_spaces[location_num-1].assign(parked_car)
-        logger.info(f"Car {car.reg_num} added to location {location_num}")
-        return parked_car
+        self.get_next_location()
+        parked_car = ParkedCar(car, self.get_next_location())
+        self.parking_spaces[parked_car.location-1].assign(parked_car)
+        logger.info(f"Car {car.reg_num} added to location {parked_car.location}")
+        return {
+            "status": "success",
+            "car": parked_car.reg_num,
+            "tariff": parked_car.tariff.name,
+            "location": parked_car.location,
+            "start": parked_car.start_time
+        }
 
     def remove_car(self, location_num):
         logger.info(f"Removing car from location {location_num}")
         location_num = int(location_num)
         if location_num > self.NUM_OF_SPACES:
-            error = NonExistantLocationError(location_num)
-            logger.error(error.message)
-            raise error
-        car = self.parking_spaces[location_num-1].car
+            raise NonExistantLocationError(location_num)
+        car = self.parking_spaces[location_num - 1].car
         if car is None:
-            error = IncorrectLocationError(location_num)
-            logger.error(error.message)
-            raise error
-        self.parking_spaces[location_num-1].unassign()
-        logger.info(f"car {car} removed from location {self.parking_spaces[location_num-1]}")
-        return car
+            raise IncorrectLocationError(location_num)
+        self.parking_spaces[location_num - 1].unassign()
+        logger.info(f"car {car} removed from location {self.parking_spaces[location_num - 1]}")
+        resp = {
+            "status": "success",
+            "car": car.reg_num,
+            "tariff": car.tariff.name,
+            "location": car.location,
+            "start": car.start_time,
+            "finish": datetime.now(),
+            "fee": car.tariff.calculate_price(car.start_time, datetime.now())
+        }
+        return resp
 
     def get_next_location(self):
         try:
@@ -88,10 +104,8 @@ class ParkingLot:
 
     @property
     def free_locations(self):
-        return [location.location_num for location in self.parking_spaces if location.available is True]
+        return [location.location_num for location in self.parking_spaces if location.available]
 
     def _car_already_parked(self, car):
-        for location in self.parking_spaces:
-            if location.car is not None and location.car.reg_num == car.reg_num:
-                return True
-        return False
+        return any([location.car.reg_num == car.reg_num for location in self.parking_spaces
+                    if location.car])

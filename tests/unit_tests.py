@@ -34,7 +34,7 @@ class TestParkingLotShould:
         car = Car('123456', 'hourly')
         parked_car = empty_parking_lot.add_car(car)
         assert len(empty_parking_lot) == 1
-        empty_parking_lot.remove_car(parked_car.location)
+        empty_parking_lot.remove_car(1)
         assert len(empty_parking_lot) == 0
 
     def test_get_available_location_supplies_lowest_possible_location_num(self, empty_parking_lot):
@@ -46,7 +46,7 @@ class TestParkingLotShould:
         assert location_2 == 2
         car_2 = Car('123457', 'hourly')
         empty_parking_lot.add_car(car_2)
-        empty_parking_lot.remove_car(parked_car_1.location)
+        empty_parking_lot.remove_car(1)
         result = empty_parking_lot.get_next_location()
         expected = 1
         assert result == expected
@@ -67,8 +67,8 @@ class TestParkingLotShould:
     def test_return_the_correct_car(empty_parking_lot):
         car = Car('12345', 'hourly')
         parked_car = empty_parking_lot.add_car(car=car)
-        returned_car = empty_parking_lot.remove_car(parked_car.location)
-        assert parked_car is returned_car
+        returned_car = empty_parking_lot.remove_car(1)
+        assert parked_car["car"] is returned_car["car"]
 
     @staticmethod
     def test_raises_error_for_non_existing_car(empty_parking_lot):
@@ -85,14 +85,14 @@ class TestParkingLotShould:
         car_5 = Car('12349', 'hourly')
         empty_parking_lot.add_car(car_1)
         empty_parking_lot.add_car(car_2)
-        parked_car_3 = empty_parking_lot.add_car(car_3)
+        empty_parking_lot.add_car(car_3)
         empty_parking_lot.add_car(car_4)
         empty_parking_lot.add_car(car_5)
         result = empty_parking_lot.free_locations
         expected = [6, 7, 8, 9, 10, 11, 12]
         assert result == expected
 
-        empty_parking_lot.remove_car(parked_car_3.location)
+        empty_parking_lot.remove_car(3)
         result = empty_parking_lot.free_locations
         expected = [3, 6, 7, 8, 9, 10, 11, 12]
         assert result == expected
@@ -118,6 +118,9 @@ class TestParkingLotShould:
         empty_parking_lot.add_car(car)
         result = empty_parking_lot._car_already_parked(car)
         assert result is True
+        car_2 = Car(reg_num="12343", tariff='hourly')
+        result = empty_parking_lot._car_already_parked(car_2)
+        assert result is False
 
 
 class TestParkedCarShould:
@@ -255,6 +258,7 @@ class TestLocationShould:
 
     @staticmethod
     def test_available_is_false_for_occupied_location(non_empty_parking_lot):
+        print(non_empty_parking_lot.parking_spaces[0])
         assert non_empty_parking_lot.parking_spaces[0].available is False
 
 

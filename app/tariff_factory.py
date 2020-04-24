@@ -20,7 +20,7 @@ class TariffFactory:
         try:
             klass = self._get_class_by_name_attr(tariff_modules)
         except TariffNotDefinedError:
-            raise TariffNotDefinedError(self.name)
+            raise
         return klass(self.price_calc)
 
     def _load_modules(self):
